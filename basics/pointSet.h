@@ -12,7 +12,7 @@ struct MyPoint {
 };
 
 class PointSet {
-private:
+protected:
 	std::vector<MyPoint> myPoints;
 	int static sameSide(MyPoint p1, MyPoint p2, MyPoint a, MyPoint b);
 public:
