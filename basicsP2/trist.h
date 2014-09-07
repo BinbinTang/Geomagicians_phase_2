@@ -1,7 +1,7 @@
 #ifndef TRISTH
 #define TRISTH
 
-
+#include "pointSetArray.h"
 /*
 
   For a triangle abc, if version 0 is abc
@@ -41,7 +41,8 @@ class TriRecord {
 
 
 class Trist {
-
+	private : 
+		PointSetArray pointSet;
 	protected:
 
 		int en_[6];
@@ -49,6 +50,10 @@ class Trist {
 
 	public:
 		Trist();
+		int addPoint(LongInt x, LongInt y);
+		int getPoint (int pIndex, LongInt& x1,LongInt& y1); // put the x,y values into x1,y1, and return 1 if the point pIndex exists
+		int noPt();                                         // return the number of points
+
 		int noTri(); // return the number of triangles
 		int makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge = false); // Add a triangle into the Trist with the three point indices
 		// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
@@ -71,7 +76,7 @@ class Trist {
 		void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need
-
+		OrTri inTriangle(int ptIndex); //if returns -1, we are not in any triangle (ptIndex is not the vertex of any triangle)
 };
 
 
