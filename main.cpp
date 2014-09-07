@@ -1,10 +1,11 @@
 
 #include "basicsP2\pointSetArray.h"
+#include "basicsP2\trist.h"
 
 #include "math.h"
 #include <iostream>
 #include <fstream>
-#include "GL\glut.h"
+#include <gl\glut.h>
 #include <windows.h>
 #include <cstdio>
 #include <fstream>
@@ -14,7 +15,8 @@
 
 using namespace std;
 
-
+Trist triangles;
+DWORD dy_ms;
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint(double x,double y)
@@ -22,7 +24,7 @@ void drawAPoint(double x,double y)
 		glPointSize(5);
 		glBegin(GL_POINTS);
 		glColor3f(0,0,0);
-			glVertex2d(x,y);
+		glVertex2d(x,y);
 		glEnd();
 		glPointSize(1);
 }
@@ -32,8 +34,8 @@ void drawALine(double x1,double y1, double x2, double y2)
 		glPointSize(1);
 		glBegin(GL_LINE_LOOP);
 		glColor3f(0,0,1);
-			glVertex2d(x1,y1);
-			glVertex2d(x2,y2);
+		glVertex2d(x1,y1);
+		glVertex2d(x2,y2);
 		glEnd();
 		glPointSize(1);
 }
@@ -42,9 +44,9 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 {
 		glBegin(GL_POLYGON);
 		glColor3f(0,0.5,0);
-			glVertex2d(x1,y1);
-			glVertex2d(x2,y2);
-			glVertex2d(x3,y3);
+		glVertex2d(x1,y1);
+		glVertex2d(x2,y2);
+		glVertex2d(x3,y3);
 		glEnd();
 
 }
@@ -111,6 +113,8 @@ void readFile(){
 			continue; 
 		}// in case the line has nothing in it
 
+		Sleep(dy_ms);
+
 		stringstream linestream(line);
 
 		linestream >> line_noStr;
@@ -118,23 +122,48 @@ void readFile(){
 
 		if(!command.compare("AP")){
 			linestream >> numberStr;
+			LongInt p1 = LongInt::LongInt(numberStr.c_str());
+			
 			linestream >> numberStr;
+			LongInt p2 = LongInt::LongInt(numberStr.c_str());
+			
+			triangles.addPoint(p1, p2);
 		
 		}
 		else if(!command.compare("OT")){
 			linestream >> numberStr;
+			int p1Idx = atoi(numberStr.c_str());
 			linestream >> numberStr;			
+			int p2Idx = atoi(numberStr.c_str());
 			linestream >> numberStr;
+			int p3Idx = atoi(numberStr.c_str());
+
+			triangles.makeTri(p1Idx,p2Idx,p3Idx, true);
 			
 		}
 		else if(!command.compare("IP")){
 			linestream >> numberStr;
+			LongInt px = LongInt::LongInt(numberStr.c_str());
 			linestream >> numberStr;
-			
+			LongInt py = LongInt::LongInt(numberStr.c_str());
+
+			int pIdx = triangles.addPoint(px,py), p1Idx, p2Idx, p3Idx;
+			OrTri tri = triangles.inTriangle(pIdx);
+			if(tri >= 0){
+				triangles.getVertexIdx(tri, pIdx, p2Idx, p3Idx);
+				triangles.delTri(tri);
+
+				triangles.makeTri(pIdx, p1Idx, p2Idx, true);
+				triangles.makeTri(pIdx, p2Idx, p3Idx, true);
+				triangles.makeTri(pIdx, p3Idx, p1Idx, true);
+			}
 		}
 		else if(!command.compare("DY")){
 			linestream >> numberStr;
-
+			dy_ms = atol(numberStr.c_str());
+			if(dy_ms<0){
+				dy_ms = 0;
+			}
 		}
 		else{
 			cerr << "Exception: Wrong input command" << endl;
@@ -145,8 +174,24 @@ void readFile(){
 
 void writeFile()
 {
-
-
+	ofstream outputFile("output.txt",ios::out, ios_base::trunc);
+	int no_line = 1;
+	int nbPoint = triangles.noPt();
+	int p1Idx, p2Idx, p3Idx;
+	OrTri tri;
+	LongInt px, py;
+	for(int i=0; i<nbPoint-1; i++){
+		triangles.getPoint(i,px,py);
+		outputFile << no_line << ": AP " << px.printOut().c_str() << " " << py.printOut().c_str() << endl;
+		no_line++;
+	}
+	
+	for(int i=0; i<triangles.noTri(); i++){
+		tri = i << 3;
+		triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
+		outputFile << no_line << ": OT " << p1Idx << " " << p2Idx << " " << p3Idx << endl;
+		no_line++;
+	}
 }
 
 void keyboard (unsigned char key, int x, int y)
