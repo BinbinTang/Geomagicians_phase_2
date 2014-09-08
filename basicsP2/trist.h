@@ -2,6 +2,7 @@
 #define TRISTH
 
 #include "pointSetArray.h"
+#include <vector>
 /*
 
   For a triangle abc, if version 0 is abc
@@ -14,7 +15,7 @@
   version 5 acb		(v:021)
 
   enext cycles   0 > 1 > 2 > 0 ,  5 > 4 > 3 > 5
-  sym cycles  i <> i + 3 % 6
+  sym cycles  i <> (i + 3) % 6
 
   org  = ver < 3 ? v[ver] : v[(ver+1)%3]
   dest = ver < 3 ? v[(ver+1)%3] : v[ver-3] 
@@ -37,16 +38,12 @@ class TriRecord {
 	friend Trist;
 };
 
-
-
-
 class Trist {
 	private : 
 		PointSetArray pointSet;
+		std::vector<TriRecord> records;
 	protected:
-
 		int en_[6];
-
 
 	public:
 		Trist();
@@ -58,25 +55,27 @@ class Trist {
 		int makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge = false); // Add a triangle into the Trist with the three point indices
 		// Moreover, automatically establish the fnext pointers to its neigbhours if autoMerge = true
 
-		void delTri(OrTri); // Delete a triangle, but you can assume that this is ONLY used by the IP operation
+		void delTri(OrTri ef); // Delete a triangle, but you can assume that this is ONLY used by the IP operation
 		                    // You may want to make sure all its neighbours are detached (below)
 		
 		OrTri enext(OrTri ef);
 		OrTri sym(OrTri ef);
 		OrTri fnext(OrTri ef);
 
-		void getVertexIdx(OrTri, int& pIdx1,int& pIdx2,int& pIdx3); // return the three indices of the three vertices by OrTri
+		void getVertexIdx(OrTri ef, int& pIdx1,int& pIdx2,int& pIdx3); // return the three indices of the three vertices by OrTri
 
-		int org(OrTri);  // the index of the first vertex of OrTri, e.g. org(bcd) => b
-		int dest(OrTri); // the index of the second vertex of OrTri, e.g. org(bcd) => c
+		int org(OrTri ef);  // the index of the first vertex of OrTri, e.g. org(bcd) => b
+		int dest(OrTri ef); // the index of the second vertex of OrTri, e.g. org(bcd) => c
 
 		void fmerge(OrTri abc, OrTri abd); // glue two neighbouring triangles, result abd = fnext(abc)
 		void fdetach(OrTri abc); // detach triangle abc with all its neighbours (undo fmerge)
 
-		void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
+		//void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need
 		OrTri inTriangle(int ptIndex); //if returns -1, we are not in any triangle (ptIndex is not the vertex of any triangle)
+		
+		std::vector< std::pair<OrTri, int> > findNeighbours(TriRecord tri);
 };
 
 
