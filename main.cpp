@@ -15,6 +15,9 @@
 
 using namespace std;
 
+double offset_x = 200;
+double offset_y = 200;
+
 Trist triangles;
 int dy_ms = 0;
 
@@ -62,7 +65,7 @@ void display(void)
 	int p1Idx, p2Idx, p3Idx;
 	LongInt px1, py1, px2, py2, px3, py3;
 
-	glTranslated(200,200,0);
+	glTranslated(offset_x,offset_y,0);
 
 	for (int i = 1; i<=triangles.noTri(); i++) {
 		triangles.getVertexIdx(i, p1Idx, p2Idx, p3Idx);
@@ -250,7 +253,12 @@ void mouse(int button, int state, int x, int y)
 	};
 	if((button == MOUSE_RIGHT_BUTTON)&&(state == GLUT_UP))
 	{
-		//triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
+		x = x - GLUT_WINDOW_WIDTH - offset_x/2;
+		y = y - GLUT_WINDOW_HEIGHT - offset_y/2;
+		std::cout << "clicked" << std::endl;
+		std::cout << x << std::endl;
+		std::cout << y << std::endl;
+		triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
 	}
 
 	glutPostRedisplay();
@@ -266,7 +274,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1000, 700);
-	glutInitWindowPosition (50, 50);
+	glutInitWindowPosition(50, 50);
 	glutCreateWindow ("CS5237 Phase II");
 	init ();
 	glutDisplayFunc(display);
