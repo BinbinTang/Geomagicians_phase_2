@@ -25,6 +25,7 @@ public:
 	int inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx);
 	// return 1 if the point p is inside the circumcircle of p1p2p3, -1 if outside, 0 if degenerate
 
+	int turnLeft(int p1Idx, int p2Idx, int p3Idx);
 };
 
 #endif

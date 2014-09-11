@@ -16,7 +16,9 @@
 using namespace std;
 
 Trist triangles;
-DWORD dy_ms;
+int dy_ms = 0;
+
+
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint(double x,double y)
@@ -48,21 +50,37 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 		glVertex2d(x2,y2);
 		glVertex2d(x3,y3);
 		glEnd();
-
 }
-
-
 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 
+	std::cout << "Drawing" << std::endl;
+	int nbPoint = triangles.noPt();
+	int p1Idx, p2Idx, p3Idx;
+	LongInt px1, py1, px2, py2, px3, py3;
 
-	// draw your output here (erase the following 3 lines)
-	drawAPoint(100,100);
-	drawALine(200,200,300,300);
-	drawATriangle(400,400,400,500,500,500);
+	glTranslated(200,200,0);
+
+	for (int i = 1; i<=triangles.noTri(); i++) {
+		triangles.getVertexIdx(i, p1Idx, p2Idx, p3Idx);
+		triangles.getPoint(p1Idx, px1, py1);
+		triangles.getPoint(p2Idx, px2, py2);
+		triangles.getPoint(p3Idx, px3, py3);
+		drawATriangle(px1.doubleValue(), py1.doubleValue(),
+					  px2.doubleValue(), py2.doubleValue(),
+					  px3.doubleValue(), py3.doubleValue());
+	}
+
+	for (int i = 1; i<=nbPoint; i++) {
+		triangles.getPoint(i, px1, py1);
+		std::cout << "drawing point " << std::endl;
+		std::cout << px1.printOut() << std::endl;
+		std::cout << py1.printOut() << std::endl;
+		drawAPoint(px1.doubleValue(), py1.doubleValue());
+	}
 
 	glPopMatrix();
 	glutSwapBuffers ();
@@ -123,12 +141,12 @@ void readFile(){
 		if(!command.compare("AP")){
 			linestream >> numberStr;
 			LongInt p1 = LongInt::LongInt(numberStr.c_str());
-			
 			linestream >> numberStr;
 			LongInt p2 = LongInt::LongInt(numberStr.c_str());
-			
+			std::cout << "reading" << std::endl;
+			std::cout << p1.printOut() << std::endl;
+			std::cout << p2.printOut() << std::endl;
 			triangles.addPoint(p1, p2);
-		
 		}
 		else if(!command.compare("OT")){
 			linestream >> numberStr;
@@ -137,9 +155,7 @@ void readFile(){
 			int p2Idx = atoi(numberStr.c_str());
 			linestream >> numberStr;
 			int p3Idx = atoi(numberStr.c_str());
-
-			triangles.makeTri(p1Idx,p2Idx,p3Idx, true);
-			
+			triangles.makeTri(p1Idx, p2Idx, p3Idx, false);
 		}
 		else if(!command.compare("IP")){
 			linestream >> numberStr;
@@ -147,7 +163,7 @@ void readFile(){
 			linestream >> numberStr;
 			LongInt py = LongInt::LongInt(numberStr.c_str());
 
-			int pIdx = triangles.addPoint(px,py), p1Idx, p2Idx, p3Idx;
+			int pIdx = triangles.addPoint(px, py), p1Idx, p2Idx, p3Idx;
 			OrTri tri = triangles.inTriangle(pIdx);
 			if(tri >= 0){
 				triangles.getVertexIdx(tri, pIdx, p2Idx, p3Idx);
@@ -160,7 +176,7 @@ void readFile(){
 		}
 		else if(!command.compare("DY")){
 			linestream >> numberStr;
-			dy_ms = atol(numberStr.c_str());
+			dy_ms = atol(numberStr.c_str()) * 1000;
 			if(dy_ms<0){
 				dy_ms = 0;
 			}
@@ -169,7 +185,6 @@ void readFile(){
 			cerr << "Exception: Wrong input command" << endl;
 		}
 	}
-
 }
 
 void writeFile()
@@ -235,7 +250,7 @@ void mouse(int button, int state, int x, int y)
 	};
 	if((button == MOUSE_RIGHT_BUTTON)&&(state == GLUT_UP))
 	{
-
+		//triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
 	}
 
 	glutPostRedisplay();

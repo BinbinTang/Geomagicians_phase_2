@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include "li.h"
+
 
 /*********************************************************CONSTRUCTORS*********************************************************/
 LongInt::LongInt(){	

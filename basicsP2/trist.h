@@ -3,6 +3,7 @@
 
 #include "pointSetArray.h"
 #include <vector>
+#include "..\basics\li.h"
 /*
 
   For a triangle abc, if version 0 is abc
@@ -73,6 +74,7 @@ class Trist {
 		//void incidentTriangles(int ptIndex,int& noOrTri, OrTri* otList); // A suggested function: you may want this function to return all the OrTri
 		                                                                 // that are incident to this point
 		                                                                 // Ignore this if you don't feel a need
+
 		OrTri inTriangle(int ptIndex); //if returns -1, we are not in any triangle (ptIndex is not the vertex of any triangle)
 		
 		std::vector< std::pair<OrTri, int> > findNeighbours(TriRecord tri);

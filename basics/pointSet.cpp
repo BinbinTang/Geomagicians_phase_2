@@ -46,3 +46,10 @@ int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 	}
 				
 }
+
+int PointSet::turnLeft(int p1Idx, int p2Idx, int p3Idx){
+	MyPoint a = this->myPoints.at(p1Idx - 1);
+	MyPoint b = this->myPoints.at(p2Idx - 1);
+	MyPoint c = this->myPoints.at(p3Idx - 1);
+	return signDet2D(b.x - a.x, b.y - a.y, c.x - a.x, c.y - a.y);
+}
