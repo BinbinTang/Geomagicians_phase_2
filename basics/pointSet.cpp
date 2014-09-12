@@ -8,14 +8,14 @@ int PointSet::addPoint(LongInt x1, LongInt y1){
 	thisPoint.z = 0;
 
 	myPoints.push_back(thisPoint);
-	return (myPoints.size());
+	return myPoints.size()-1;
 }
 
 int PointSet::inCircle(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
-	MyPoint a = this->myPoints.at(p1Idx-1);
-	MyPoint b = this->myPoints.at(p2Idx-1);
-	MyPoint c = this->myPoints.at(p3Idx-1);
-	MyPoint p = this->myPoints.at(pIdx-1);
+	MyPoint a = this->myPoints.at(p1Idx);
+	MyPoint b = this->myPoints.at(p2Idx);
+	MyPoint c = this->myPoints.at(p3Idx);
+	MyPoint p = this->myPoints.at(pIdx);
 
 	int det1 = signDet(a.x, a.y, 1,
 		b.x, b.y, 1,
@@ -32,10 +32,10 @@ int PointSet::sameSide(MyPoint p1, MyPoint p2, MyPoint a, MyPoint b){
 }
 
 int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
-	MyPoint a = this->myPoints.at(p1Idx-1);
-	MyPoint b = this->myPoints.at(p2Idx-1);
-	MyPoint c = this->myPoints.at(p3Idx-1);
-	MyPoint p = this->myPoints.at(pIdx-1);
+	MyPoint a = this->myPoints.at(p1Idx);
+	MyPoint b = this->myPoints.at(p2Idx);
+	MyPoint c = this->myPoints.at(p3Idx);
+	MyPoint p = this->myPoints.at(pIdx);
 
 	if(sameSide(p,a,b,c)==1 && sameSide(p,b,a,c)==1 && sameSide(p,c,a,b)==1){
 		return 1;
@@ -48,8 +48,8 @@ int PointSet::inTri(int p1Idx, int p2Idx, int p3Idx, int pIdx) {
 }
 
 int PointSet::turnLeft(int p1Idx, int p2Idx, int p3Idx){
-	MyPoint a = this->myPoints.at(p1Idx - 1);
-	MyPoint b = this->myPoints.at(p2Idx - 1);
-	MyPoint c = this->myPoints.at(p3Idx - 1);
+	MyPoint a = this->myPoints.at(p1Idx);
+	MyPoint b = this->myPoints.at(p2Idx);
+	MyPoint c = this->myPoints.at(p3Idx);
 	return signDet2D(b.x - a.x, b.y - a.y, c.x - a.x, c.y - a.y);
 }

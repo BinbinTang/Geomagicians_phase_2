@@ -66,8 +66,7 @@ void display(void)
 	LongInt px1, py1, px2, py2, px3, py3;
 
 	glTranslated(offset_x,offset_y,0);
-
-	for (int i = 1; i<=triangles.noTri(); i++) {
+	for (int i = 0; i<triangles.noTri(); i++) {
 		triangles.getVertexIdx(i, p1Idx, p2Idx, p3Idx);
 		triangles.getPoint(p1Idx, px1, py1);
 		triangles.getPoint(p2Idx, px2, py2);
@@ -77,7 +76,7 @@ void display(void)
 					  px3.doubleValue(), py3.doubleValue());
 	}
 
-	for (int i = 1; i<=nbPoint; i++) {
+	for (int i = 0; i<nbPoint; i++) {
 		triangles.getPoint(i, px1, py1);
 		std::cout << "drawing point " << std::endl;
 		std::cout << px1.printOut() << std::endl;
@@ -106,8 +105,6 @@ void init(void)
 {
 	glClearColor (1.0,1.0,1.0, 1.0);
 }
-
-
 
 void readFile(){
 
@@ -152,24 +149,29 @@ void readFile(){
 			triangles.addPoint(p1, p2);
 		}
 		else if(!command.compare("OT")){
+			cout << "OT" << endl;
 			linestream >> numberStr;
-			int p1Idx = atoi(numberStr.c_str());
+			int p1Idx = atoi(numberStr.c_str())-1;
 			linestream >> numberStr;			
-			int p2Idx = atoi(numberStr.c_str());
+			int p2Idx = atoi(numberStr.c_str())-1;
 			linestream >> numberStr;
-			int p3Idx = atoi(numberStr.c_str());
-			triangles.makeTri(p1Idx, p2Idx, p3Idx, false);
+			int p3Idx = atoi(numberStr.c_str())-1;
+			triangles.makeTri(p1Idx, p2Idx, p3Idx, true);
 		}
 		else if(!command.compare("IP")){
+			cout << "IP" << endl;
 			linestream >> numberStr;
 			LongInt px = LongInt::LongInt(numberStr.c_str());
 			linestream >> numberStr;
 			LongInt py = LongInt::LongInt(numberStr.c_str());
 
-			int pIdx = triangles.addPoint(px, py), p1Idx, p2Idx, p3Idx;
+			int pIdx = triangles.addPoint(px, py);
+			int p1Idx = -1;
+			int p2Idx = -1;
+			int p3Idx = -1;
 			OrTri tri = triangles.inTriangle(pIdx);
 			if(tri >= 0){
-				triangles.getVertexIdx(tri, pIdx, p2Idx, p3Idx);
+				triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
 				triangles.delTri(tri);
 
 				triangles.makeTri(pIdx, p1Idx, p2Idx, true);
@@ -233,11 +235,8 @@ void keyboard (unsigned char key, int x, int y)
 		default:
 		break;
 	}
-
 	glutPostRedisplay();
 }
-
-
 
 void mouse(int button, int state, int x, int y)
 {
@@ -266,11 +265,11 @@ void mouse(int button, int state, int x, int y)
 
 int main(int argc, char **argv)
 {
-	cout<<"CS5237 Phase II"<< endl<< endl;
-	cout << "Right mouse click: OT operation"<<endl;
-	cout << "Q: Quit" <<endl;
-	cout << "R: Read in control points from \"input.txt\"" <<endl;
-	cout << "W: Write control points to \"input.txt\"" <<endl;
+	cout<<"cs5237 phase ii"<< endl<< endl;
+	cout << "right mouse click: ot operation"<<endl;
+	cout << "q: quit" <<endl;
+	cout << "r: read in control points from \"input.txt\"" <<endl;
+	cout << "w: write control points to \"input.txt\"" <<endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1000, 700);
