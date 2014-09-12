@@ -12,6 +12,7 @@
 #include <strstream>
 #include <string>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 
@@ -19,8 +20,7 @@ double offset_x = 200;
 double offset_y = 200;
 
 Trist triangles;
-int dy_ms = 0;
-
+int dy_secs = 0;
 
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
@@ -60,32 +60,40 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 
-	std::cout << "Drawing" << std::endl;
 	int nbPoint = triangles.noPt();
 	int p1Idx, p2Idx, p3Idx;
 	LongInt px1, py1, px2, py2, px3, py3;
 
 	glTranslated(offset_x,offset_y,0);
 	for (int i = 0; i<triangles.noTri(); i++) {
-		triangles.getVertexIdx(i, p1Idx, p2Idx, p3Idx);
+		triangles.getVertexIdx(i<<3, p1Idx, p2Idx, p3Idx);
 		triangles.getPoint(p1Idx, px1, py1);
 		triangles.getPoint(p2Idx, px2, py2);
 		triangles.getPoint(p3Idx, px3, py3);
+		std::cout << "drawing Tri " << i << std::endl;
+		std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
+		std::cout << px1.printOut() << "," << py1.printOut() << std::endl;
+		std::cout << px2.printOut() << "," << py2.printOut() << std::endl;
+		std::cout << px3.printOut() << "," << py3.printOut() << std::endl;
+		std::cout  << std::endl;
 		drawATriangle(px1.doubleValue(), py1.doubleValue(),
 					  px2.doubleValue(), py2.doubleValue(),
 					  px3.doubleValue(), py3.doubleValue());
+		drawALine(px1.doubleValue(), py1.doubleValue(),
+			      px2.doubleValue(), py2.doubleValue());
+		drawALine(px2.doubleValue(), py2.doubleValue(),
+			      px3.doubleValue(), py3.doubleValue());
+		drawALine(px3.doubleValue(), py3.doubleValue(),
+			      px1.doubleValue(), py1.doubleValue());
 	}
 
 	for (int i = 0; i<nbPoint; i++) {
 		triangles.getPoint(i, px1, py1);
-		std::cout << "drawing point " << std::endl;
-		std::cout << px1.printOut() << std::endl;
-		std::cout << py1.printOut() << std::endl;
 		drawAPoint(px1.doubleValue(), py1.doubleValue());
 	}
 
 	glPopMatrix();
-	glutSwapBuffers ();
+	glutSwapBuffers();
 }
 
 void reshape (int w, int h)
@@ -109,29 +117,30 @@ void init(void)
 void readFile(){
 
 	string line_noStr;
-
 	string line;   // each line of the file
 	string command;// the command of each line
 	string numberStr; // for single LongInt operation
 	string outputAns = "Answer of your computation"; // the answer you computed
-
 	ifstream inputFile("input.txt",ios::in);
-
 
 	if(inputFile.fail()){
 		cerr << "Error: Cannot read input file \"" << "input.txt" << "\"";
 		return;
 	}
 
+	time_t curtime = time(NULL);
 	while(inputFile.good()){
-
+		/*
+		if (difftime(time(NULL),curtime) <= dy_secs)
+			continue;
+		else
+			curtime = time(NULL);
+			*/
 		getline(inputFile,line);
 		if(line.empty()) {
 			command = "";
 			continue; 
 		}// in case the line has nothing in it
-
-		Sleep(dy_ms);
 
 		stringstream linestream(line);
 
@@ -143,7 +152,7 @@ void readFile(){
 			LongInt p1 = LongInt::LongInt(numberStr.c_str());
 			linestream >> numberStr;
 			LongInt p2 = LongInt::LongInt(numberStr.c_str());
-			std::cout << "reading" << std::endl;
+			std::cout << "reading point" << std::endl;
 			std::cout << p1.printOut() << std::endl;
 			std::cout << p2.printOut() << std::endl;
 			triangles.addPoint(p1, p2);
@@ -156,6 +165,8 @@ void readFile(){
 			int p2Idx = atoi(numberStr.c_str())-1;
 			linestream >> numberStr;
 			int p3Idx = atoi(numberStr.c_str())-1;
+			std::cout << "reading tri" << std::endl;
+			std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
 			triangles.makeTri(p1Idx, p2Idx, p3Idx, true);
 		}
 		else if(!command.compare("IP")){
@@ -181,14 +192,14 @@ void readFile(){
 		}
 		else if(!command.compare("DY")){
 			linestream >> numberStr;
-			dy_ms = atol(numberStr.c_str()) * 1000;
-			if(dy_ms<0){
-				dy_ms = 0;
-			}
+			dy_secs = atof(numberStr.c_str());
+			if(dy_secs < 0)
+				dy_secs = 0;
 		}
 		else{
 			cerr << "Exception: Wrong input command" << endl;
 		}
+		glutPostRedisplay();
 	}
 }
 
@@ -257,7 +268,19 @@ void mouse(int button, int state, int x, int y)
 		std::cout << "clicked" << std::endl;
 		std::cout << x << std::endl;
 		std::cout << y << std::endl;
-		triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
+
+		int pIndex = triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
+		int tri = triangles.inTriangle(pIndex);
+
+		int p1Idx, p2Idx, p3Idx;
+
+		if (tri != -1) {
+			triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
+			triangles.delTri(tri);
+			triangles.makeTri(pIndex, p1Idx, p2Idx, true);
+			triangles.makeTri(pIndex, p2Idx, p3Idx, true);
+			triangles.makeTri(pIndex, p3Idx, p1Idx, true);
+		}
 	}
 
 	glutPostRedisplay();
