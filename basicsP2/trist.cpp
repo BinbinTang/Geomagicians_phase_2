@@ -35,7 +35,7 @@ int Trist::noTri(){
 int Trist::makeTri(int pIndex1,int pIndex2,int pIndex3,bool autoMerge){
 	vector<pair<OrTri,int> > neigh;
 	TriRecord tri;
-	int newTriIdx = this->records.size();//modifié, avant size+1 (les indices commencent à 0)
+	int newTriIdx = this->records.size();//modifi? avant size+1 (les indices commencent ?0)
 	int tLeft = this->pointSet.turnLeft(pIndex1, pIndex2, pIndex3);
 	for(int i=0; i<6; i++){
 		tri.fnext_[i]=-1;

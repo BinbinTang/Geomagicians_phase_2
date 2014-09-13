@@ -193,7 +193,7 @@ void readFile(){
 
 void writeFile()
 {
-	ofstream outputFile("output.txt",ios::out, ios_base::trunc);
+	ofstream outputFile("savefile.txt",ios::out, ios_base::trunc);
 	int no_line = 1;
 	int p1Idx, p2Idx, p3Idx;
 	OrTri tri;
@@ -227,6 +227,12 @@ void keyboard (unsigned char key, int x, int y)
 
 		case 'Q':
 		case 'q':
+			exit(0);
+		break;
+
+		case 's':
+		case 'S':
+			writeFile();
 			exit(0);
 		break;
 
@@ -264,11 +270,12 @@ void mouse(int button, int state, int x, int y)
 
 int main(int argc, char **argv)
 {
-	cout<<"cs5237 phase ii"<< endl<< endl;
+	cout<<"CS5237 phase ii"<< endl<< endl;
 	cout << "right mouse click: ot operation"<<endl;
 	cout << "q: quit" <<endl;
 	cout << "r: read in control points from \"input.txt\"" <<endl;
-	cout << "w: write control points to \"input.txt\"" <<endl;
+	cout << "w: write control points to \"savefile.txt\"" <<endl;
+	cout << "s: saving the final triangulation to \"savefile.txt\" and quit the program"<<endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1000, 700);
