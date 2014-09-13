@@ -176,19 +176,7 @@ void readFile(){
 			linestream >> numberStr;
 			LongInt py = LongInt::LongInt(numberStr.c_str());
 
-			int pIdx = triangles.addPoint(px, py);
-			int p1Idx = -1;
-			int p2Idx = -1;
-			int p3Idx = -1;
-			OrTri tri = triangles.inTriangle(pIdx);
-			if(tri >= 0){
-				triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
-				triangles.delTri(tri);
-
-				triangles.makeTri(pIdx, p1Idx, p2Idx, true);
-				triangles.makeTri(pIdx, p2Idx, p3Idx, true);
-				triangles.makeTri(pIdx, p3Idx, p1Idx, true);
-			}
+			triangles.make3Tri(px,py);
 		}
 		else if(!command.compare("DY")){
 			linestream >> numberStr;
@@ -207,11 +195,10 @@ void writeFile()
 {
 	ofstream outputFile("output.txt",ios::out, ios_base::trunc);
 	int no_line = 1;
-	int nbPoint = triangles.noPt();
 	int p1Idx, p2Idx, p3Idx;
 	OrTri tri;
 	LongInt px, py;
-	for(int i=0; i<nbPoint-1; i++){
+	for(int i=0; i<triangles.noPt(); i++){
 		triangles.getPoint(i,px,py);
 		outputFile << no_line << ": AP " << px.printOut().c_str() << " " << py.printOut().c_str() << endl;
 		no_line++;
@@ -220,7 +207,7 @@ void writeFile()
 	for(int i=0; i<triangles.noTri(); i++){
 		tri = i << 3;
 		triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
-		outputFile << no_line << ": OT " << p1Idx << " " << p2Idx << " " << p3Idx << endl;
+		outputFile << no_line << ": OT " << p1Idx+1 << " " << p2Idx+1 << " " << p3Idx+1 << endl;
 		no_line++;
 	}
 }
@@ -269,18 +256,7 @@ void mouse(int button, int state, int x, int y)
 		std::cout << x << std::endl;
 		std::cout << y << std::endl;
 
-		int pIndex = triangles.addPoint(LongInt::LongInt(x), LongInt::LongInt(y));
-		int tri = triangles.inTriangle(pIndex);
-
-		int p1Idx, p2Idx, p3Idx;
-
-		if (tri != -1) {
-			triangles.getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
-			triangles.delTri(tri);
-			triangles.makeTri(pIndex, p1Idx, p2Idx, true);
-			triangles.makeTri(pIndex, p2Idx, p3Idx, true);
-			triangles.makeTri(pIndex, p3Idx, p1Idx, true);
-		}
+		triangles.make3Tri(LongInt::LongInt(x), LongInt::LongInt(y));
 	}
 
 	glutPostRedisplay();

@@ -97,6 +97,22 @@ OrTri Trist::enext(OrTri ef){
 	return (idx << 3) | en_[ver];
 }
 
+void Trist::make3Tri(LongInt x, LongInt y){
+	int p1Idx = -1;
+	int p2Idx = -1;
+	int p3Idx = -1;
+	int pIdx = this->addPoint(x,y);
+	OrTri tri = this->inTriangle(pIdx);
+	if(tri >= 0){
+		this->getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
+		this->delTri(tri);
+
+		this->makeTri(pIdx, p1Idx, p2Idx, true);
+		this->makeTri(pIdx, p2Idx, p3Idx, true);
+		this->makeTri(pIdx, p3Idx, p1Idx, true);
+	}
+}
+
 OrTri Trist::sym(OrTri ef){
 	int idx = ef >> 3;
 	int ver = ef & 7;
