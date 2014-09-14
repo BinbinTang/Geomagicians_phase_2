@@ -19,6 +19,9 @@ using namespace std;
 double offset_x = 200;
 double offset_y = 200;
 
+float k = 1;
+float tx = 0.0, ty=0.0;
+
 Trist triangles;
 int dy_secs = 0;
 
@@ -58,7 +61,12 @@ void drawATriangle(double x1,double y1, double x2, double y2, double x3, double 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glPushMatrix();
+
+	//controls transformation
+	glScalef(k, k, k);	
+	glTranslatef(tx, ty, 0);	
 
 	int nbPoint = triangles.noPt();
 	int p1Idx, p2Idx, p3Idx;
@@ -215,6 +223,19 @@ void writeFile()
 void keyboard (unsigned char key, int x, int y)
 {
 	switch (key) {
+		case 'i':
+		case 'I':
+			k += 0.1;
+			glutPostRedisplay();
+		break;
+
+		case 'o':
+		case 'O':
+			if(k>0.1)
+				k-=0.1;
+			glutPostRedisplay();
+		break;
+			
 		case 'r':
 		case 'R':
 			readFile();
@@ -234,6 +255,30 @@ void keyboard (unsigned char key, int x, int y)
 		case 'S':
 			writeFile();
 			exit(0);
+		break;
+
+		case 'L':
+		case 'l':
+			tx-= 1;
+			glutPostRedisplay();
+		break;
+
+		case 'a':
+		case 'A':
+			tx+= 1;
+			glutPostRedisplay();
+		break;
+
+		case 'd':
+		case 'D':
+			ty-= 1;
+			glutPostRedisplay();
+		break;
+
+		case 'u':
+		case 'U':
+			ty+= 1;
+			glutPostRedisplay();
 		break;
 
 		default:
@@ -272,6 +317,9 @@ int main(int argc, char **argv)
 {
 	cout<<"CS5237 phase ii"<< endl<< endl;
 	cout << "right mouse click: ot operation"<<endl;
+	cout <<"i/o: zoom in/out"<<endl;
+	cout <<"l/a: move left/right"<<endl;
+	cout <<"u/d: move up or down"<<endl;
 	cout << "q: quit" <<endl;
 	cout << "r: read in control points from \"input.txt\"" <<endl;
 	cout << "w: write control points to \"savefile.txt\"" <<endl;
