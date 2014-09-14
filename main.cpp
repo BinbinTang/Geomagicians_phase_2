@@ -25,6 +25,8 @@ float tx = 0.0, ty=0.0;
 Trist triangles;
 int dy_secs = 0;
 
+bool DEBUG = true;
+
 // These three functions are for those who are not familiar with OpenGL, you can change these or even completely ignore them
 
 void drawAPoint(double x,double y)
@@ -78,12 +80,16 @@ void display(void)
 		triangles.getPoint(p1Idx, px1, py1);
 		triangles.getPoint(p2Idx, px2, py2);
 		triangles.getPoint(p3Idx, px3, py3);
-		std::cout << "drawing Tri " << i << std::endl;
-		std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
-		std::cout << px1.printOut() << "," << py1.printOut() << std::endl;
-		std::cout << px2.printOut() << "," << py2.printOut() << std::endl;
-		std::cout << px3.printOut() << "," << py3.printOut() << std::endl;
-		std::cout  << std::endl;
+
+		if (DEBUG) {
+			std::cout << "Drawing Tri" << i << std::endl;
+			std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
+			std::cout << px1.printOut() << "," << py1.printOut() << std::endl;
+			std::cout << px2.printOut() << "," << py2.printOut() << std::endl;
+			std::cout << px3.printOut() << "," << py3.printOut() << std::endl;
+			std::cout << std::endl;
+		}
+		
 		drawATriangle(px1.doubleValue(), py1.doubleValue(),
 					  px2.doubleValue(), py2.doubleValue(),
 					  px3.doubleValue(), py3.doubleValue());
@@ -97,6 +103,13 @@ void display(void)
 
 	for (int i = 0; i<nbPoint; i++) {
 		triangles.getPoint(i, px1, py1);
+
+		if (DEBUG) {
+			std::cout << "Drawing Point" << i << std::endl;
+			std::cout << px1.printOut() << "," << py1.printOut() << std::endl;
+			std::cout << std::endl;
+		}
+
 		drawAPoint(px1.doubleValue(), py1.doubleValue());
 	}
 
@@ -138,12 +151,8 @@ void readFile(){
 
 	time_t curtime = time(NULL);
 	while(inputFile.good()){
-		/*
-		if (difftime(time(NULL),curtime) <= dy_secs)
-			continue;
-		else
-			curtime = time(NULL);
-			*/
+		Sleep(dy_secs * 1000);
+
 		getline(inputFile,line);
 		if(line.empty()) {
 			command = "";
@@ -160,9 +169,13 @@ void readFile(){
 			LongInt p1 = LongInt::LongInt(numberStr.c_str());
 			linestream >> numberStr;
 			LongInt p2 = LongInt::LongInt(numberStr.c_str());
-			std::cout << "reading point" << std::endl;
-			std::cout << p1.printOut() << std::endl;
-			std::cout << p2.printOut() << std::endl;
+
+			if (DEBUG){
+				std::cout << "Reading point" << std::endl;
+				std::cout << p1.printOut() << "," << p2.printOut() << std::endl;
+				std::cout << std::endl;
+			}
+
 			triangles.addPoint(p1, p2);
 		}
 		else if(!command.compare("OT")){
@@ -173,8 +186,13 @@ void readFile(){
 			int p2Idx = atoi(numberStr.c_str())-1;
 			linestream >> numberStr;
 			int p3Idx = atoi(numberStr.c_str())-1;
-			std::cout << "reading tri" << std::endl;
-			std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
+
+			if (DEBUG) {
+				std::cout << "Reading tri" << std::endl;
+				std::cout << p1Idx << "," << p2Idx << "," << p3Idx << std::endl;
+				std::cout << std::endl;
+			}
+
 			triangles.makeTri(p1Idx, p2Idx, p3Idx, true);
 		}
 		else if(!command.compare("IP")){
