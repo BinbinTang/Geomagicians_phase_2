@@ -60,6 +60,7 @@ class Trist {
 		                    // You may want to make sure all its neighbours are detached (below)
 		
 		void make3Tri(LongInt x, LongInt y);
+		vector<int> make3Tri(int pIdx); //the point already exists
 
 		OrTri enext(OrTri ef);
 		OrTri sym(OrTri ef);
@@ -78,8 +79,14 @@ class Trist {
 		                                                                 // Ignore this if you don't feel a need
 
 		OrTri inTriangle(int ptIndex); //if returns -1, we are not in any triangle (ptIndex is not the vertex of any triangle)
-		
+		vector<int> adjacentTriangles(int pIdx1, int pIdx2); //indexes of triangles wich have pIdx1,pIdx2 as edge
+		vector<int> adjacentTriangles(int pIdx); //indexes of triangles wic<h have pIdx as vertex
+
 		std::vector< std::pair<OrTri, int> > findNeighbours(TriRecord tri);
+		bool isLocallyDelaunay(int pIdx1, int pIdx2);
+		vector<int> flipEdge(int pIdx1, int pIdx2);
+		void flippingAlg(int pIdx1, int pIdx2);
+		void triangulate(); //we assume there is no triangle
 };
 
 

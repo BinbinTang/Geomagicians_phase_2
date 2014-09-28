@@ -1,6 +1,7 @@
 #include "trist.h"
 #include <iostream>
-
+#include <algorithm>
+#include <gl/glut.h>
 using namespace std;
 
 Trist::Trist()
@@ -111,6 +112,26 @@ void Trist::make3Tri(LongInt x, LongInt y){
 		this->makeTri(pIdx, p2Idx, p3Idx, true);
 		this->makeTri(pIdx, p3Idx, p1Idx, true);
 	}
+}
+
+vector<int> Trist::make3Tri(int pIdx){
+	int p1Idx = -1;
+	int p2Idx = -1;
+	int p3Idx = -1;
+	OrTri tri = this->inTriangle(pIdx);
+	vector<int> addedEdges;
+	if(tri >= 0){
+		this->getVertexIdx(tri, p1Idx, p2Idx, p3Idx);
+		this->delTri(tri);
+
+		this->makeTri(pIdx, p1Idx, p2Idx, true);
+		this->makeTri(pIdx, p2Idx, p3Idx, true);
+		this->makeTri(pIdx, p3Idx, p1Idx, true);
+		addedEdges.push_back(p1Idx);
+		addedEdges.push_back(p2Idx);
+		addedEdges.push_back(p3Idx);
+	}
+	return addedEdges;
 }
 
 OrTri Trist::sym(OrTri ef){
@@ -339,3 +360,141 @@ vector<pair<OrTri, int> > Trist::findNeighbours(TriRecord tri1){
 	return neigh;
 }
 
+vector<int> Trist::adjacentTriangles(int pIdx1, int pIdx2){
+	vector<int> adj;
+	vector<TriRecord>::iterator it;
+	int count;
+	for(int i =0; i < records.size(); i++){
+		count = 0;
+		TriRecord r = records.at(i);
+		if(r.vi_[0]==pIdx1 || r.vi_[1]==pIdx1 || r.vi_[2]==pIdx1){
+			count++;
+		}
+		if(r.vi_[0]==pIdx2 || r.vi_[1]==pIdx2 || r.vi_[2]==pIdx2){
+			count++;
+		}
+		if(count==2){
+			adj.push_back(i);
+		}
+	}
+	return adj;
+}
+
+bool Trist::isLocallyDelaunay(int pIdx1, int pIdx2){
+	vector<int> adj = adjacentTriangles(pIdx1, pIdx2);
+	int a, b, c, d, e, f;
+	vector<int> notDuplicates;
+	if(adj.size()==2){
+		getVertexIdx(adj.at(0) << 3, a, b, c);
+		getVertexIdx(adj.at(1) << 3, d, e, f);
+		notDuplicates.push_back(pIdx1);
+		notDuplicates.push_back(pIdx2);
+		if(find(notDuplicates.begin(), notDuplicates.end(), a)==notDuplicates.end()){
+			notDuplicates.push_back(a);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), b)==notDuplicates.end()){
+			notDuplicates.push_back(b);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), c)==notDuplicates.end()){
+			notDuplicates.push_back(c);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), d)==notDuplicates.end()){
+			notDuplicates.push_back(d);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), e)==notDuplicates.end()){
+			notDuplicates.push_back(e);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), f)==notDuplicates.end()){
+			notDuplicates.push_back(f);
+		}
+		return pointSet.inCircle(notDuplicates.at(0), notDuplicates.at(1), notDuplicates.at(2), notDuplicates.at(3))<0;
+	}
+	return true;
+}
+
+vector<int> Trist::flipEdge(int pIdx1, int pIdx2){
+	vector<int> adj = adjacentTriangles(pIdx1, pIdx2);
+	vector<int> notDuplicates;
+	int a, b, c, d, e, f;
+	if(adj.size()==2){
+		getVertexIdx(adj.at(0) << 3, a, b, c);
+		getVertexIdx(adj.at(1) << 3, d, e, f);
+		notDuplicates.push_back(pIdx1);
+		notDuplicates.push_back(pIdx2);
+		if(find(notDuplicates.begin(), notDuplicates.end(), a)==notDuplicates.end()){
+			notDuplicates.push_back(a);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), b)==notDuplicates.end()){
+			notDuplicates.push_back(b);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), c)==notDuplicates.end()){
+			notDuplicates.push_back(c);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), d)==notDuplicates.end()){
+			notDuplicates.push_back(d);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), e)==notDuplicates.end()){
+			notDuplicates.push_back(e);
+		}
+		if(find(notDuplicates.begin(), notDuplicates.end(), f)==notDuplicates.end()){
+			notDuplicates.push_back(f);
+		}
+		notDuplicates.erase(std::remove(notDuplicates.begin(), notDuplicates.end(), pIdx1), notDuplicates.end());
+		notDuplicates.erase(std::remove(notDuplicates.begin(), notDuplicates.end(), pIdx2), notDuplicates.end());
+		delTri(adj.at(0) << 3);
+		delTri(adj.at(1) << 3);
+		makeTri(notDuplicates.at(0),notDuplicates.at(1), pIdx1, true);
+		makeTri(notDuplicates.at(0),notDuplicates.at(1), pIdx2, true);
+	}
+	return notDuplicates;
+}
+
+void Trist::flippingAlg(int pIdx1, int pIdx2){
+	if(!isLocallyDelaunay(pIdx1, pIdx2)){
+		vector<int> points = flipEdge(pIdx1, pIdx2);
+		flippingAlg(pIdx1,points.at(0));
+		flippingAlg(pIdx1, points.at(1));
+		flippingAlg(pIdx2,points.at(0));
+		flippingAlg(pIdx2, points.at(1));
+	}//we have to check if the edges of adjacent triangles of edge (pIdx1 and pIdx2) are locally Delaunay in any case
+}
+
+void Trist::triangulate(){
+	int maxIndx = noPt()-1;
+	vector<int> p = pointSet.constructCircumTri();
+	vector<int> addedEdges;
+	vector<int> triToDel;
+	makeTri(p.at(0), p.at(1), p.at(2));
+	for(int i=0; i<= maxIndx; i++){
+		addedEdges = make3Tri(i);
+		flippingAlg(i, addedEdges.at(0));
+		flippingAlg(i, addedEdges.at(1));
+		flippingAlg(i, addedEdges.at(2));
+		glutPostRedisplay();
+	}
+/*
+	triToDel = adjacentTriangles(p.at(0));
+	for(vector<int>::iterator it = triToDel.begin(); it != triToDel.end(); ++it) {
+		delTri(*it << 3 );
+	}
+	triToDel = adjacentTriangles(p.at(1));
+	for(vector<int>::iterator it = triToDel.begin(); it != triToDel.end(); ++it) {
+		delTri(*it << 3);
+	}
+	triToDel = adjacentTriangles(p.at(2));
+	for(vector<int>::iterator it = triToDel.begin(); it != triToDel.end(); ++it) {
+		delTri(*it << 3);
+	}
+	*/
+}
+
+vector<int> Trist::adjacentTriangles(int pIdx){
+	vector<int> tri;
+	for(int i =0; i < records.size(); i++){
+		TriRecord r = records.at(i);
+		if(r.vi_[0]==pIdx || r.vi_[1]==pIdx || r.vi_[2]==pIdx){
+			tri.push_back(i);
+		}
+	}
+	return tri;
+}

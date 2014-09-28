@@ -184,6 +184,10 @@ void readFile(){
 			if(dy_secs < 0)
 				dy_secs = 0;
 		}
+		else if(!command.compare("DT")){
+			cout << "DT" << endl;
+			triangles.triangulate();
+		}
 		else{
 			cerr << "Exception: Wrong input command" << endl;
 		}
